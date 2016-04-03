@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>eetvoorkeur</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='bootstrap-clockpicker.min.css') }}">
+    <link rel="stylesheet" type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class='container'>
+        <div class='row'>
+            <div class='col-md-6 col-md-offset-3'>
+                <div id='content'>
+                    <h2>eetvoorkeur</h2>
+                    <p>
+                        Voordat we kunnen eten, moeten we eerst een aantal ingewikkelde stappen doorlopen om antwoord te kunnen geven op de vragen "wie?", "wat?" en "wanneer?". Het antwoord op de vraag "waar?" is bekend &ndash; zo niet, dan niet.
+                    </p>
+                    <hr />
+                    <div id='step1' class='inactive'>
+                        <h3>Stap 1: wanneer?</h3>
+                        <p>
+                            Laten we de belangrijkste vraag eerst aanpakken: de planning. Wanneer moet duidelijk zijn wat er gegeten gaat worden? En wie er mee-eten? En hoe laat wordt het eten verwacht?
+                        </p>
+                        {% if admin %}
+                            <div class="alert alert-danger unshow" id="step1-error"></div>
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="deadlinefield-1" class="col-sm-4 control-label">Deadline 'wat?'</label>
+                                    <div class="col-sm-5">
+                                        <div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">
+                                            <input name="deadlinefield-1" type="text" class="form-control" value="">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="deadlinefield-2" class="col-sm-4 control-label">Deadline 'wie?'</label>
+                                    <div class="col-sm-5">
+                                        <div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">
+                                            <input name="deadlinefield-2" type="text" class="form-control" value="">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="deadlinefield-3" class="col-sm-4 control-label">ETA eten</label>
+                                    <div class="col-sm-5">
+                                        <div class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">
+                                            <input name="deadlinefield-3" type="text" class="form-control" value="">
+                                            <span class="input-group-addon">
+                                                <span class="glyphicon glyphicon-time"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-5 col-sm-offset-4">
+                                        <input id='tostep2' type='button' class='btn btn-primary' value='Door naar stap 2' disabled>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="during {% if state.step > 0 %}unshow{% endif %}">
+                                Dat zijn belangrijke beslissingen, en die worden niet zomaar door iedereen gemaakt. Wacht totdat iemand die ervaring heeft met dit soort lastige problemen zich erover buigt.
+                            </p>
+                            <p class="after {% if state.step == 0 %}unshow{% endif %}">
+                                Voor <span class="glyphicon glyphicon-time"></span> <span id='deadline1-inline' class='deadline-inline'></span> moet er gestemd zijn, voor <span class="glyphicon glyphicon-time"></span> <span id='deadline2-inline' class='deadline-inline'></span> moet je doorgegeven hebben of je mee eet, en om <span class="glyphicon glyphicon-time"></span> <span id='deadline3-inline' class='deadline-inline'></span> wordt het eten verwacht.
+                            </p>
+                        {% endif %}
+                    </div>
+                    <hr />
+                    <div id='step2' class='inactive'>
+                        <h3>Stap 2: wat?<span class='deadline'> (<i class="fa fa-clock-o"></i> <span class='time'></span>)</span></h3>
+                        <p>
+                            Hieronder kan je een suggestie doen voor een maaltijd-optie, en je voorkeur kenbaar maken. Vanzelfsprekend is het heel erg eenvoudig om deze stemming te beïnvloeden, maar daar is op de lange termijn niemand bij gebaat. Honour system.
+                        </p>
+                        <div class="form-horizontal voteform">
+                            <div class="form-group" id="option-example">
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-6">
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="{{ value }}" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                                            0%
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input class='btn btn-default' value='Kiezen'>
+                                </div>
+                            </div>
+                            <div class="form-group" id="other-option">
+                                <label class="col-sm-3 control-label">Anders:</label>
+                                <div class="col-sm-6">
+                                    <input id='new-option' type="text" class="form-control" value="">
+                                </div>
+                                <div class="col-sm-3">
+                                    <input id='add-option' class='btn btn-default' value='Toevoegen'>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div id='step3' class='inactive'>
+                        <h3>Stap 3: wie?<span class='deadline'> (<i class="fa fa-clock-o"></i> <span class='time'></span>)</span></h3>
+                        <p>
+                            We zouden natuurlijk gewoon af kunnen gaan op de bovenstaande stemmen, maar de ervaring leert dat A) niet iedereen een mening heeft, B) mensen vergeten dat ze al gestemd hebben, C) plannen veranderen, D) mensen op het laatste moment aan willen schuiven, en E) al het bovenstaande. Bovendien zijn er allerlei andere manieren om de voedselkeuze verder te specificeren.
+                        </p>
+                        {% if admin %}
+                        <p>
+                            Welke van deze opties lijkt je een goed idee?
+                        </p>
+                        <div class='text-center'>
+                            <ul class="btn-group-vertical nav nav-pills" role="group">
+                                <li data-toggle='pill' class='btn btn-default'>eetFestijn</li>
+                                <li data-toggle='pill' class='btn btn-default'>eetvoudig</li>
+                                <li data-toggle='pill' class='btn btn-default'>AH boodschappenlijstje</li>
+                                <li data-toggle='pill' class='btn btn-default'>anders, namelijk:</li>
+                                <li><input id='differentfood' name='differentfood' type="text" class="form-control" placeholder="..."></li>
+                            </ul>
+                        </div>
+                        {% elif eetfestijn %}
+                        <p class='approach'>
+                            In dit geval ligt <a href="/eetfestijn">eetFestijn</a> voor de hand. Geef daar je bestelling door!
+                        </p>
+                        {% elif eetvoudig %}
+                        <p class='approach'>
+                            Dit gaan we oplossen met <a href="/eetvoudig">eetvoudig</a>. Meld je daar aan om mee te eten.
+                        </p>
+                        {% elif approach %}
+                        <p>
+                            We pakken het als volgt aan:
+                            <blockquote>{{ approach }}</blockquote>
+                        </p>
+                        {% else %}
+                        <p>
+                            Wederom zo'n belangrijke beslissing die we aan een professional zullen moeten overlaten. Even geduld.
+                        </p>
+                        {% endif %}
+                    </div>
+                    <hr />
+                    <div id='step4' class='inactive'>
+                        <h3>Eten-ETA:
+                        {% if admin %}
+                        <span class="form-inline">
+                            <span class="form-group">
+                                <span class="input-group clockpicker" data-placement="right" data-align="top" data-autoclose="true">
+                                    <input style='width:6em;' name="eta2" type="text" class="form-control" value="">
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-time"></span>
+                                    </span>
+                                </span>
+                                </span>
+                        </span>
+                        {% else %}
+                            <i class="fa fa-clock-o"></i> <span class="time"></span>
+                        {% endif %}
+                        </h3>
+                        <p class="before">
+                            Enfin, we lopen misschien wat op de zaken vooruit. Misschien wordt de etenstijd nog wel een beetje bijgesteld als we meer informatie hebben..
+                        </p>
+                        <p class="during">
+                            Tsja, die schatting is wellicht al weer een tijdje geleden gemaakt. Kan iets eerder zijn, kan iets later zijn. Des te dichter we bij 't betreffende tijdstip komen, des te preciezer het zou kunnen zijn &ndash; althans, daar gaan we voor het gemak maar even vanuit.
+                        </p>
+                        <p class="after">
+                            De ETA is inmiddels verstreken. Hopelijk zit je aan tafel, of heb je 't al weer achter de knopen. Zo niet, dan moet je nog even volhouden. In ieder geval: morgen weer een dag.
+                        </p>
+                    </div>
+                    <hr />
+                    <div class="footer">
+                        <p><a href='https://github.com/joostrijneveld/eetvoorkeur/'>eetvoorkeur</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="{{ url_for('static', filename='bootstrap-clockpicker.min.js') }}"></script>
+    <script>
+        {% if admin %}
+        var admin_secret = "{{ admin }}"
+        {% endif %}
+        var state = {{ state | tojson }}
+    </script>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</body>
+</html>
